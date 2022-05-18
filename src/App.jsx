@@ -48,8 +48,43 @@ const App = () => {
                 setLastUpdated(Date.now())
             }} />
             <GeoJSON data={filteredGeoJson} key={lastUpdated} />
+
+            {getMarkers(filteredGeoJson).map((marker) => (
+                <Marker position={marker.position} key={marker.id}>
+                    <Popup>
+                        <img
+                            src={marker.thumbnail}
+                            className='popup-img'
+                        />
+                    </Popup>
+                </Marker>
+            ))}
         </MapContainer>
     )
-};
+}
 
-export default App;
+function getMarkers(geoJson) {
+    if (!geoJson) {
+        return []
+    }
+
+    return geoJson.features.map((feature) => {
+        return {
+            // Used as a key for the react component, nothing else :)
+            id: feature.properties.id,
+            position: [
+                parseFloat(feature.properties.Center_latitude),
+                // The coordinates of the boxes (polygons that describe the shape)
+                // worked correctly, however the Central_longitude was offset by 360 degrees
+                // for some reason, and the markers were showing up after the 
+                // map repeated itself (so on the second round, thus 360 degrees around the globe)
+                parseFloat(feature.properties.Center_longitude) - 360
+            ],
+            thumbnail: feature.properties.browse_url
+        }
+    })
+}
+
+export default App
+
+

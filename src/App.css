@@ -29,7 +29,7 @@
     right: 0;
     top: 100%;
     margin-top: 10px;
-    width: 150px;
+    width: 250px;
     padding: 10px;
     background: white;
     border-radius: 5px;
@@ -42,4 +42,11 @@
 
 .filter-select:last-child {
     margin-bottom: 0;    
+}
+
+.popup-img {
+    height: 100px;
+    width: 100px;
+    object-fit: cover;
+    object-position: top;
 }

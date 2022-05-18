@@ -42,9 +42,9 @@ function wrapOptions(array) {
 
 const Filters = (props) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [mission, setMission] = useState(null)
-  const [type, setType] = useState(null)
-  const [inst, setInst] = useState(null)
+  const [missions, setMissions] = useState([])
+  const [types, setTypes] = useState([])
+  const [insts, setInsts] = useState([])
 
   useEffect(() => {
     if (!props.geoJson) {
@@ -54,13 +54,17 @@ const Filters = (props) => {
     const features = props.geoJson.features
     const filtered = []
     features.forEach(feature => {
-      if (mission && feature.properties.mission != mission) {
+      const { mission, type, inst } = feature.properties
+
+      if (missions.length > 0 && missions.indexOf(mission) === -1) {
         return
       }
-      if (type && feature.properties.type != type) {
+
+      if (types.length > 0 && types.indexOf(type) === -1) {
         return
       }
-      if (inst && feature.properties.inst != inst) {
+
+      if (insts.length > 0 && insts.indexOf(inst) === -1) {
         return
       }
 
@@ -74,7 +78,7 @@ const Filters = (props) => {
     }
 
     props.setFilteredGeoJson(filteredGeoJson)
-  }, [mission, type, inst]);
+  }, [missions.length, types.length, insts.length]);
 
   if (!props.geoJson) {
     return null
@@ -92,32 +96,35 @@ const Filters = (props) => {
       <div className='filter-container' style={{
         display: isOpen ? 'block' : 'none'
       }}>
-        <label>Filter by Mission</label>
+        <label>Filter by Missions</label>
         <Select
+          isMulti={true}
           className='filter-select'
           options={wrapOptions(options.missions)}
           onChange={(selected) => {
-            setMission(selected ? selected.value : null)
+            setMissions(selected.map(item => item.value))
           }}
           isClearable
         />
 
         <label>Filter by Types</label>
         <Select
+          isMulti={true}
           className='filter-select'
           options={wrapOptions(options.types)}
           onChange={(selected) => {
-            setType(selected ? selected.value : null)
+            setTypes(selected.map(item => item.value))
           }}
           isClearable
         />
 
         <label>Filter by Insts</label>
         <Select
+          isMulti={true}
           className='filter-select'
           options={wrapOptions(options.insts)}
           onChange={(selected) => {
-            setInst(selected ? selected.value : null)
+            setInsts(selected.map(item => item.value))
           }}
           isClearable
         />

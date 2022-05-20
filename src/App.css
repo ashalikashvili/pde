@@ -44,9 +44,54 @@
     margin-bottom: 0;    
 }
 
-.popup-img {
-    height: 100px;
-    width: 100px;
+.thumbnail-wrapper {
+    height: 200px;
+    width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.thumbnail-wrapper img {
+    height: 100%;
+    width: 100%;
     object-fit: cover;
     object-position: top;
+}
+
+.thumbnail-wrapper span {
+    font-size: 16px;
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.thumbnail-wrapper .spinner {
+    box-sizing: border-box;
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    border: 7px solid #c53f00;
+    border-bottom-color: transparent;
+    border-right-color: transparent;
+    border-radius: 30px;
+    top: 50%;
+    left: 50%;
+    margin-left: -20px;
+    margin-top: -20px;
+    animation: spin 1s ease-in-out infinite;
+}
+
+.leaflet-marker-icon[alt='no-preview'] {
+    filter: hue-rotate(160deg);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotateZ(0deg);
+    }
+
+    100% {
+        transform: rotateZ(360deg);
+    }
 }

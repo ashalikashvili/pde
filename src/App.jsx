@@ -6,6 +6,8 @@ import L from 'leaflet'
 import mars from './data/mars.json'
 import 'esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css'
 import Filters from './components/Filters'
+import Thumbnail from './components/Thumbnail'
+
 const { BaseLayer } = LayersControl
 
 const App = () => {
@@ -50,12 +52,13 @@ const App = () => {
             <GeoJSON data={filteredGeoJson} key={lastUpdated} />
 
             {getMarkers(filteredGeoJson).map((marker) => (
-                <Marker position={marker.position} key={marker.id}>
+                <Marker
+                    key={marker.id}
+                    position={marker.position}
+                    alt={!marker.thumbnail && 'no-preview'}
+                >
                     <Popup>
-                        <img
-                            src={marker.thumbnail}
-                            className='popup-img'
-                        />
+                        <Thumbnail url={marker.thumbnail} />
                     </Popup>
                 </Marker>
             ))}

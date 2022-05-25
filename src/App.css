@@ -44,29 +44,57 @@
     margin-bottom: 0;    
 }
 
-.thumbnail-wrapper {
-    height: 200px;
-    width: 200px;
+.mission-preview {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.thumbnail-wrapper {
     position: relative;
 }
 
-.thumbnail-wrapper img {
-    height: 100%;
-    width: 100%;
+.mission-preview img {
+    height: 200px;
+    width: 200px;
     object-fit: cover;
     object-position: top;
 }
 
-.thumbnail-wrapper span {
+.mission-info {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.mission-info .row {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+    margin: 5px 0;
+}
+
+.mission-info .row b {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.5);
+    font-weight: normal;
+}
+
+.mission-info .row span {
+    font-family: monospace;
+    font-size: 14px;
+    word-break: break-all;
+}
+
+.mission-preview span {
     font-size: 16px;
     color: black;
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.thumbnail-wrapper .spinner {
+.mission-preview .spinner {
     box-sizing: border-box;
     position: absolute;
     height: 50px;
@@ -80,6 +108,30 @@
     margin-left: -20px;
     margin-top: -20px;
     animation: spin 1s ease-in-out infinite;
+}
+
+.download {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.download-title {
+    font-size: 12px;
+    margin: 5px 0;
+}
+
+.download-button {
+    padding: 7px;
+    box-sizing: border-box;
+    width: 100%;
+    text-align: center;
+    background: #c53f00;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 12px;
 }
 
 .leaflet-marker-icon[alt='no-preview'] {

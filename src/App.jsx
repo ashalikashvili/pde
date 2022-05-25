@@ -1,12 +1,18 @@
 import './App.css'
-import { useEffect, useRef, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, LayersControl, GeoJSON } from 'react-leaflet'
-import { geosearch } from 'esri-leaflet-geocoder'
-import L from 'leaflet'
-import mars from './data/mars.json'
+import { useEffect, useState, useCallback } from 'react'
+import {
+    MapContainer,
+    TileLayer,
+    Marker,
+    Popup,
+    LayersControl,
+    GeoJSON
+} from 'react-leaflet'
+
+import Api from './lib/Api'
 import 'esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css'
 import Filters from './components/Filters'
-import Thumbnail from './components/Thumbnail'
+import MissionPreview from './components/MissionPreview'
 
 const { BaseLayer } = LayersControl
 
@@ -16,12 +22,19 @@ const App = () => {
     const [lastUpdated, setLastUpdated] = useState(Date.now())
 
     useEffect(() => {
-        console.log('sending request')
-        setTimeout(() => {
-            setGeoJson(mars)
-            setFilteredGeoJson(mars)
+        const load = async () => {
+            const geoJson = await Api.getMissions()
+            setGeoJson(geoJson)
+            setFilteredGeoJson(geoJson)
             setLastUpdated(Date.now())
-        }, 1000)
+        }
+
+        load()
+    }, [])
+
+    const setFilteredGeoJsonWrapper = useCallback((filteredGeoJson) => {
+        setFilteredGeoJson(filteredGeoJson)
+        setLastUpdated(Date.now())
     }, [])
 
     return (
@@ -45,20 +58,17 @@ const App = () => {
                     </BaseLayer>
                 </BaseLayer>
             </LayersControl>
-            <Filters geoJson={geoJson} setFilteredGeoJson={(filteredGeoJson) => {
-                setFilteredGeoJson(filteredGeoJson)
-                setLastUpdated(Date.now())
-            }} />
+            <Filters geoJson={geoJson} setFilteredGeoJson={setFilteredGeoJsonWrapper} />
             <GeoJSON data={filteredGeoJson} key={lastUpdated} />
 
-            {getMarkers(filteredGeoJson).map((marker) => (
+            {getMissionMarkers(filteredGeoJson).map((mission) => (
                 <Marker
-                    key={marker.id}
-                    position={marker.position}
-                    alt={!marker.thumbnail && 'no-preview'}
+                    key={mission.id}
+                    position={mission.position}
+                    alt={!mission.thumbnail && 'no-preview'}
                 >
                     <Popup>
-                        <Thumbnail url={marker.thumbnail} />
+                        <MissionPreview mission={mission} />
                     </Popup>
                 </Marker>
             ))}
@@ -66,7 +76,7 @@ const App = () => {
     )
 }
 
-function getMarkers(geoJson) {
+function getMissionMarkers(geoJson) {
     if (!geoJson) {
         return []
     }
@@ -83,7 +93,12 @@ function getMarkers(geoJson) {
                 // map repeated itself (so on the second round, thus 360 degrees around the globe)
                 parseFloat(feature.properties.Center_longitude) - 360
             ],
-            thumbnail: feature.properties.browse_url
+            thumbnail: feature.properties.browse_url,
+            fullImage: feature.properties.image_url,
+            
+            start: new Date(feature.properties.UTC_start_time),
+            end: new Date(feature.properties.UTC_stop_time),
+            observationTime: new Date(feature.properties.Observation_time)
         }
     })
 }

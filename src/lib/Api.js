@@ -1,4 +1,4 @@
-const API = 'http://jubpde.free.beeceptor.com'
+const API = 'https://jubpde.free.beeceptor.com'
 const CORS_PROXY = 'https://artisans.ge/proxy.php'
 
 /**

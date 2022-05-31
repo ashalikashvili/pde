@@ -6,8 +6,12 @@ import {
     Marker,
     Popup,
     LayersControl,
-    GeoJSON
+    GeoJSON,
+    useMap
 } from 'react-leaflet'
+
+
+import { getMissionMarkers } from './lib/helpers'
 
 import Api from './lib/Api'
 import 'esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css'
@@ -16,10 +20,46 @@ import MissionPreview from './components/MissionPreview'
 
 const { BaseLayer } = LayersControl
 
+const MAX_MARKERS = 500
+
+const Markers = ({ geoJson }) => {
+    const map = useMap();
+    const [bounds, setBounds] = useState({
+        _northEast: { lat: 0, lng: 0 },
+        _southWest: { lat: 0, lng: 0 },
+    })
+
+    useEffect(() => {
+        const onDragEnd = (event) => {
+            setBounds(map.getBounds())
+        }
+
+        setBounds(map.getBounds())
+
+        map.on('dragend', onDragEnd)
+        return () => map.off('dragend', onDragEnd)
+    }, [])
+
+    return (
+        getMissionMarkers(geoJson, MAX_MARKERS, bounds).map((mission) => (
+            <Marker
+                key={mission.id}
+                position={mission.position}
+                alt={!mission.thumbnail && 'no-preview'}
+            >
+                <Popup>
+                    <MissionPreview mission={mission} />
+                </Popup>
+            </Marker>
+        ))
+    )
+}
+
 const App = () => {
     const [geoJson, setGeoJson] = useState(null)
     const [filteredGeoJson, setFilteredGeoJson] = useState(null)
     const [lastUpdated, setLastUpdated] = useState(Date.now())
+    window.geoJson = geoJson;
 
     useEffect(() => {
         const load = async () => {
@@ -38,7 +78,7 @@ const App = () => {
     }, [])
 
     return (
-        <MapContainer center={[0, 0]} zoom={3}>
+        <MapContainer center={[0, 0]} zoom={5}>
             <LayersControl>
                 <BaseLayer checked name='SatelliteMap'>
                     <TileLayer
@@ -59,48 +99,16 @@ const App = () => {
                 </BaseLayer>
             </LayersControl>
             <Filters geoJson={geoJson} setFilteredGeoJson={setFilteredGeoJsonWrapper} />
-            <GeoJSON data={filteredGeoJson} key={lastUpdated} />
+            {filteredGeoJson && (
+                <GeoJSON data={{
+                    ...filteredGeoJson,
+                    features: filteredGeoJson.features.slice(0, MAX_MARKERS)
+                }} key={lastUpdated} />
+            )}
 
-            {getMissionMarkers(filteredGeoJson).map((mission) => (
-                <Marker
-                    key={mission.id}
-                    position={mission.position}
-                    alt={!mission.thumbnail && 'no-preview'}
-                >
-                    <Popup>
-                        <MissionPreview mission={mission} />
-                    </Popup>
-                </Marker>
-            ))}
+            <Markers geoJson={filteredGeoJson} />
         </MapContainer>
     )
-}
-
-function getMissionMarkers(geoJson) {
-    if (!geoJson) {
-        return []
-    }
-
-    return geoJson.features.map((feature) => {
-        return {
-            // Used as a key for the react component, nothing else :)
-            id: feature.properties.id,
-            position: [
-                parseFloat(feature.properties.Center_latitude),
-                // The coordinates of the boxes (polygons that describe the shape)
-                // worked correctly, however the Central_longitude was offset by 360 degrees
-                // for some reason, and the markers were showing up after the 
-                // map repeated itself (so on the second round, thus 360 degrees around the globe)
-                parseFloat(feature.properties.Center_longitude) - 360
-            ],
-            thumbnail: feature.properties.browse_url,
-            fullImage: feature.properties.image_url,
-            
-            start: new Date(feature.properties.UTC_start_time),
-            end: new Date(feature.properties.UTC_stop_time),
-            observationTime: new Date(feature.properties.Observation_time)
-        }
-    })
 }
 
 export default App

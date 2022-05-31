@@ -1,12 +1,13 @@
 const API = 'https://jubpde.free.beeceptor.com'
 const CORS_PROXY = 'https://artisans.ge/proxy.php'
 
+
 /**
  * Currently the API is mocked.
  */
 export default class Api {
     static getMissions() {
-        return fetch(API).then(response => {
+        return fetch('http://127.0.0.1:8080/mars.json').then(response => {
             return response.json()
         })
     }

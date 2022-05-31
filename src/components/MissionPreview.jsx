@@ -58,7 +58,7 @@ const MissionPreview = ({ mission }) => {
                 </div>
                 <div className="row">
                     <b>Observation Time:</b>
-                    <span>{mission.observationTime.toLocaleString()}</span>
+                    <span>{mission.observationTime?.toLocaleString() || 'Unknown'}</span>
                 </div>
             </div>
             <div className="download">

@@ -127,7 +127,7 @@
     width: 100%;
     text-align: center;
     background: #c53f00;
-    color: white;
+    color: white !important;
     border-radius: 4px;
     text-decoration: none;
     font-weight: bold;

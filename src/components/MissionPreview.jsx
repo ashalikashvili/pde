@@ -18,14 +18,21 @@ const formatSize = (size) => {
 const MissionPreview = ({ mission }) => {
     const [isLoaded, setIsLoaded] = useState(false)
     const [size, setSize] = useState(-1)
+
+    let fullImage = mission.fullImage
+    // If it's a label file, we can assume the same file with 
+    // .IMG extension is the image
+    if (fullImage && fullImage.endsWith('.lbl')) {
+        fullImage = fullImage.slice(0, -4) + '.IMG'
+    }
     
     useEffect(() => {
-        if (mission.fullImage) {
-            Api.fetchResourceSize(mission.fullImage).then(size => {
+        if (fullImage) {
+            Api.fetchResourceSize(fullImage).then(size => {
                 setSize(size)
             })
         }
-    }, [mission.fullImage])
+    }, [fullImage])
 
     return (
         <div className="mission-preview">
@@ -64,7 +71,7 @@ const MissionPreview = ({ mission }) => {
             <div className="download">
                 <h5 className="download-title">Download Full Image</h5>
                 <a
-                    href={mission.fullImage}
+                    href={fullImage}
                     target="_blank"
                     rel="noreferrer"
                     className="download-button"

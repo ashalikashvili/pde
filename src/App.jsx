@@ -3,59 +3,21 @@ import { useEffect, useState, useCallback } from 'react'
 import {
     MapContainer,
     TileLayer,
-    Marker,
-    Popup,
-    LayersControl,
-    GeoJSON,
-    useMap
+    LayersControl
 } from 'react-leaflet'
 
-
-import { getMissionMarkers } from './lib/helpers'
+import GeoJSON from './components/GeoJSON'
 
 import Api from './lib/Api'
 import 'esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css'
+
 import Filters from './components/Filters'
-import MissionPreview from './components/MissionPreview'
+import Markers from './components/Markers'
 
 const { BaseLayer } = LayersControl
 
-const MAX_MARKERS = 500
-
-const Markers = ({ geoJson }) => {
-    const map = useMap();
-    const [bounds, setBounds] = useState({
-        _northEast: { lat: 0, lng: 0 },
-        _southWest: { lat: 0, lng: 0 },
-    })
-
-    useEffect(() => {
-        const onDragEnd = (event) => {
-            setBounds(map.getBounds())
-        }
-
-        setBounds(map.getBounds())
-
-        map.on('dragend', onDragEnd)
-        return () => map.off('dragend', onDragEnd)
-    }, [])
-
-    return (
-        getMissionMarkers(geoJson, MAX_MARKERS, bounds).map((mission) => (
-            <Marker
-                key={mission.id}
-                position={mission.position}
-                alt={!mission.thumbnail && 'no-preview'}
-            >
-                <Popup>
-                    <MissionPreview mission={mission} />
-                </Popup>
-            </Marker>
-        ))
-    )
-}
-
 const App = () => {
+    const [loaded, setLoaded] = useState(false)
     const [geoJson, setGeoJson] = useState(null)
     const [filteredGeoJson, setFilteredGeoJson] = useState(null)
     const [lastUpdated, setLastUpdated] = useState(Date.now())
@@ -64,6 +26,7 @@ const App = () => {
     useEffect(() => {
         const load = async () => {
             const geoJson = await Api.getMissions()
+            setLoaded(true)
             setGeoJson(geoJson)
             setFilteredGeoJson(geoJson)
             setLastUpdated(Date.now())
@@ -98,12 +61,15 @@ const App = () => {
                     </BaseLayer>
                 </BaseLayer>
             </LayersControl>
+            {!loaded && (
+                <div id="loader">
+                    <div className="spinner"></div>
+                    <span>Loading the data...</span>
+                </div>
+            )}
             <Filters geoJson={geoJson} setFilteredGeoJson={setFilteredGeoJsonWrapper} />
             {filteredGeoJson && (
-                <GeoJSON data={{
-                    ...filteredGeoJson,
-                    features: filteredGeoJson.features.slice(0, MAX_MARKERS)
-                }} key={lastUpdated} />
+                <GeoJSON data={filteredGeoJson} lastUpdated={lastUpdated} />
             )}
 
             <Markers geoJson={filteredGeoJson} />

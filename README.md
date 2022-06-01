@@ -1,3 +1,15 @@
+# How to Run
+
+Required:
+
+- Node.js
+- NPM
+
+Run `npm install` in the root directory. This will install all of the JS dependencies and create a folder called `node_modules`.
+
+After this, you can run
+`npm start` to run the development server of react. More on that below.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
